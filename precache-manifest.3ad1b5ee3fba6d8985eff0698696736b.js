@@ -12,12 +12,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "favicon.xcf"
   },
   {
-    "revision": "d4c33738fe0450ecc1ad1f0da348a84e",
+    "revision": "0c8f90bedc67b261970cc62efec9f321",
     "url": "index.html"
   },
   {
-    "revision": "66d076604dbd6a325cdb",
-    "url": "js/app.ede601c8.js"
+    "revision": "9e59be38efb13e358365",
+    "url": "js/app.969cd8d7.js"
   },
   {
     "revision": "23492c291113b5354fdd",
