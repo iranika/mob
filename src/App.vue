@@ -11,7 +11,8 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title>MoB verβ.012</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-avatar color="light-blue">Nika</v-avatar>
+      <div id="firebase-auth-ui" v-if="isSignIn == false"></div>
+      <v-avatar color="light-blue" v-else ><img :src="firebaseApp.auth().currentUser.photoURL" /> </v-avatar>
     </v-app-bar>
     <v-navigation-drawer
       v-model="drawer"
@@ -27,8 +28,16 @@
             <v-list-item-title>Close</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item to="create-deck">
           <v-list-item-action>
+            <v-icon>mdi-pencil</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>デッキを作る（要ログイン）</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-action to="deck">
             <v-icon>mdi-pencil</v-icon>
           </v-list-item-action>
           <v-list-item-content>
@@ -36,7 +45,7 @@
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
-          <v-list-item-action>
+          <v-list-item-action to="#/fav">
             <v-icon>mdi-pencil</v-icon>
           </v-list-item-action>
           <v-list-item-content>
@@ -73,12 +82,19 @@
 
 <script>
   //import Card from "./components/Card.vue"
-  import Mob from "./Mob.js"
+  import Mob from "./Mob.js";
+  import firebaseApp from "@/firebase/firebaseApp"
+  import * as firebaseui from 'firebaseui'
+  import 'firebaseui/dist/firebaseui.css'
+
+
   export default {
     props: {
       source: String,
     },
     data: () => ({
+      firebaseApp: firebaseApp,
+      isSignIn: false,
       decks: Mob.getDecks(),
       drawer: null,
       drawerRight: null,
@@ -89,5 +105,32 @@
     components: {
       //CardList
     },
+    methods:{
+      setUser(user){
+        this.user = user;
+      },
+      setSignIn(bool){
+        this.isSignIn = bool;
+      }
+    },
+    mounted(){
+      firebaseApp.auth().onAuthStateChanged((user)=>{
+        if (user) {
+          this.isSignIn = true
+          console.log(user)      
+        } else {
+          this.isSignIn = false
+          var ui = new firebaseui.auth.AuthUI(firebaseApp.auth());
+          ui.start("#firebase-auth-ui", {
+            //signInSuccessUrl: '#/',
+            signInOptions: [
+              firebaseApp.auth.TwitterAuthProvider.PROVIDER_ID
+            ],
+            tosUrl: 'http://iranika.info/kiyaku',
+            //privacyPolicyUrl: 'http://iranika.info/kiyaku'
+          })
+        }
+      });
+    }
   }
 </script>

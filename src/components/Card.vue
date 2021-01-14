@@ -2,7 +2,6 @@
   <v-card class="d-flex flex-column" max-width="250" width="250" min-height="250" v-if="deck">
     <v-card-title>
       {{ deck.title }}
-      <v-icon>mdi-book-multiple</v-icon>
     </v-card-title>
     <v-card-subtitle style="text-align: left;">
       <a href style="color:gray;text-decoration: none !important;">{{ deck.auther }}</a>

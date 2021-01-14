@@ -55,7 +55,7 @@
           <template v-if="BattleResult.hitAnswers.length > 0">
             "{{deck.title}}"とのバトルで{{BattleResult.hitAnswers.length}}枚ブレイクに成功！！<br>
             <ul>
-              <li v-for="(answer, i) in BattleResult.hitAnswers" :key="i">
+              <li v-for="(_, i) in BattleResult.hitAnswers" :key="i">
                 <a :href="BattleResult.hitAnswers[i].Url">{{BattleResult.hitAnswers[i].Title}}</a>
               </li>
             </ul>
@@ -75,7 +75,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="answerDialog = false">閉じる</v-btn>
-          <v-btn color="blue darken-1" text ><v-icon v-bind="attrs" v-on="on">mdi-twitter</v-icon>結果をツイート</v-btn>
+          <v-btn color="blue darken-1" text ><v-icon>mdi-twitter</v-icon>結果をツイート</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

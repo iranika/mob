@@ -13,8 +13,8 @@
 </template>
 
 <script>
-import Mob from "./Mob.js";
-import Card from "./components/Card.vue";
+import Mob from "../Mob.js";
+import Card from "../components/Card.vue";
 //import firestore from '@/firebase/firestore.js';
 //import firebase from "firebase";
 
