@@ -56,7 +56,7 @@
             "{{deck.title}}"とのバトルで{{BattleResult.hitAnswers.length}}枚ブレイクに成功！！<br>
             <ul>
               <li v-for="(_, i) in BattleResult.hitAnswers" :key="i">
-                <a :href="BattleResult.hitAnswers[i].Url">{{BattleResult.hitAnswers[i].Title}}</a>
+                <a :href="ReplaceAfLink(BattleResult.hitAnswers[i].Url)">{{BattleResult.hitAnswers[i].Title}}</a>
               </li>
             </ul>
           </template>
@@ -65,7 +65,7 @@
             残ったカードはこれでした！！<br>
             <ul>
               <li v-for="(_, i) in BattleResult.unhitAnswers" :key="i">
-                <a :href="BattleResult.unhitAnswers[i].Url">{{BattleResult.unhitAnswers[i].Url}}</a>
+                <a :href="ReplaceAfLink(BattleResult.unhitAnswers[i].Url)">{{BattleResult.unhitAnswers[i].Url}}</a>
               </li>
             </ul>
 
@@ -124,6 +124,18 @@
       },
       onCancel: function(){
         console.log("User cancelled loading.");
+      },
+      ReplaceAfLink: function(url = ""){
+        const AffiliateId = "iranica"
+        const maniax_dlaf = "/maniax/dlaf/=/t/s/link/work/aid/" + AffiliateId + "/id/"
+        const home_dlaf = "/home/dlaf/=/t/s/link/work/aid/" + AffiliateId + "/id/"
+        if (url.includes("/maniax/work/=/product_id/")){
+          return url.replace("/maniax/work/=/product_id/", maniax_dlaf)
+        }else if(url.includes("/home/work/=/product_id/")){
+          return url.replace("/home/work/=/product_id/", home_dlaf)
+        }else{
+          return url + "#unknown"
+        }
       }
     },
     components: {
