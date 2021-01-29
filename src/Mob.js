@@ -5,6 +5,7 @@ import axios from "axios";
 
 let docksRef = firestore.collection('decks');
 let productsRef = firestore.collection('products');
+//let productPatchRef = firestore.collection('products_patch');
 var decksPtr = [];
 
 /*
@@ -75,8 +76,10 @@ export default {
                     console.log(doc.data())
                     var isCollect = false;
                     answerData.cv.forEach(function (cv) {
-                        console.log(doc.data().CV)
-                        if (doc.data().CV.includes(cv)){
+                        var _CV = doc.data().CV
+                        if (_CV == null) {
+                            console.log(_CV)
+                        }else if (_CV.includes(cv)){
                             isCollect = true;
                             result.hitAnswers.push(doc.data());
                             return;
