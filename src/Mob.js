@@ -5,6 +5,7 @@ import axios from "axios";
 
 let docksRef = firestore.collection('decks');
 let productsRef = firestore.collection('products');
+let productsPatchRef = firestore.collection('products_patch');
 var decksPtr = [];
 
 /*
@@ -58,53 +59,64 @@ export default {
     getProductCode: function(urlStr=""){
         return urlStr.replace(/.*\//, "").replace(".html", "")
     },
-    getBattleResult: function(answerData, productCodes) {
+    getBattleResult: async function(answerData, productCodes) {
         var result = {
             isAllHit: false,
             hitAnswers: [],
             unhitAnswers: [],
         };
-        productsRef.where(
-            firebase.firestore.FieldPath.documentId(),
-            "in",
-            productCodes
-        ).get().then(
-            function (querySnapshot) {
-                querySnapshot.docs.forEach(doc => {
-                    //TODO: CVとCircleNameをヒットチェック
-                    console.log(doc.data())
-                    var isCollect = false;
-                    answerData.cv.forEach(function (cv) {
-                        console.log(doc.data().CV)
-                        if (doc.data().CV.includes(cv)){
-                            isCollect = true;
-                            result.hitAnswers.push(doc.data());
-                            return;
-                        }
-                    })
-                    if (isCollect){
-                        return;
-                    }
-                    answerData.circle.forEach(function (circle) {
-                        if (doc.data().CircleName == circle){
-                            isCollect = true;
-                            result.hitAnswers.push(doc.data());
-                            return;
-                        }                    
-                    })
-                    if (!isCollect){
-                        result.unhitAnswers.push(doc.data());
-                    }
-        
-                });
-                //console.log(productCodes.length, result.hitAnswers.length);
-                if (productCodes.length == result.hitAnswers.length){
-                    result.isAllHit = true;
-                }        
-            }
-        )
 
+        const [productsSnap, patchSnap] = await Promise.all([
+            productsRef.where(
+                firebase.firestore.FieldPath.documentId(),
+                "in",
+                productCodes
+            ).get(),
+            productsPatchRef.where(
+                firebase.firestore.FieldPath.documentId(),
+                "in",
+                productCodes
+            ).get()
+        ])
+
+        const productData = productsSnap.docs.map(doc => doc.data())
+        var patchData = {}
+        patchSnap.docs.forEach(doc => { 
+            patchData[doc.id] = doc.data() 
+        })
+
+        console.info("product", JSON.stringify(productData))
+        console.info("patch", JSON.stringify(patchData))
+
+        productData.forEach(function(doc){
+            if (doc.Id in patchData){
+                Object.keys(patchData[doc.Id]).forEach(function(key){
+                    if(doc[key] == null){
+                        doc[key] = patchData[doc.Id][key]
+                    }else{
+                        doc[key] = doc[key].concat(patchData[doc.Id][key])
+                    }
+                })
+            }
+            if (doc.CV == null){
+                console.warn("product cv is null.", doc)
+            }else if (answerData.cv.some(cv => doc.CV.includes(cv))){
+                result.hitAnswers.push(doc)
+                return
+            }
+            if (answerData.circle.some(circle => circle === doc.CircleName)){
+                result.hitAnswers.push(doc)
+            }else{
+                result.unhitAnswers.push(doc);
+            }
+        })
+        if (result.hitAnswers.length == productCodes.length){
+            result.isAllHit = true
+        }
+
+        console.log("result", JSON.stringify(result))
         return result
+        
     },
     setDeck: function(title, auther, answers, answertype, hints){
         docksRef.add({

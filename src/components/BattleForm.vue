@@ -108,13 +108,14 @@
       }
     }),
     methods: {
-      submit: function (){
+      submit: async function (){
         let self = this
         self.isLoading = true;
         console.log(self.answerData);
         console.log(self.deck);
-        self.BattleResult = Mob.getBattleResult(self.answerData, self.deck.answers)
-        console.log(self.BattleResult)
+        self.BattleResult = await Mob.getBattleResult(self.answerData, self.deck.answers)
+        //self.BattleResult = Mob.getBattleResult(self.answerData, self.deck.answers)
+        console.log("BattleResult", JSON.stringify(self.BattleResult))
         setTimeout(function(){
           self.isLoading = false;
           console.log('load off');
