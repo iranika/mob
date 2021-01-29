@@ -6,6 +6,7 @@ import axios from "axios";
 let docksRef = firestore.collection('decks');
 let productsRef = firestore.collection('products');
 let productsPatchRef = firestore.collection('products_patch');
+let usersRef = firestore.collection('users')
 var decksPtr = [];
 
 /*
@@ -57,7 +58,7 @@ export default {
         return result;
     },
     getProductCode: function(urlStr=""){
-        return urlStr.replace(/.*\//, "").replace(".html", "")
+        return urlStr.replace(/.*\//, "").replace(/\.html.*$/, "")
     },
     getBattleResult: async function(answerData, productCodes) {
         var result = {
@@ -118,6 +119,25 @@ export default {
         return result
         
     },
+    setUserInfo: function(){
+        //TODO: 認証済みか事前チェック
+        if (firebase.auth().currentUser){
+            const uid = firebase.auth().currentUser.uid
+            usersRef.doc(uid).set({
+                uid: uid,
+                name: firebase.auth().currentUser.displayName,
+                photo: firebase.auth().currentUser.photoURL
+            }).then(function(docRef){
+                console.log("Document was created.", docRef)
+            }).catch(function (error) {
+                console.error("Document was not created", error)               
+            })
+
+        }else{
+            //current user is null
+            console.warn("user was not login.", firebase.auth().currentUser())
+        }
+    },
     setDeck: function(title, auther, answers, answertype, hints){
         docksRef.add({
             title: title,
@@ -133,17 +153,22 @@ export default {
         });
     },
     addProductRequest: function(productUrls = []){
-        productUrls.forEach(function(productUrl){
-            let productCode = productUrl.replace(/.*\//, "").replace(".html", "")
-            if (productsRef.doc(productCode).exists){
+        let self = this
+        productUrls.forEach(async function(productUrl){
+            let productCode = self.getProductCode(productUrl)
+            console.log("ProductCode", productCode)
+            const snapshot = await productsRef.doc(productCode).get()
+
+            if (snapshot.exists){
                 //すでにある場合
+                console.log("already exits", productCode)
             }else{
                 //存在しない場合
+                let params = new URLSearchParams()
+                params.append("urls", productUrl)
                 axios.post(
-                    "https://n8n.iranika.info/webhook/dlsitesq",
-                    {
-                        "product":productUrl
-                    }
+                    "http://yurika.iranika.info:1323/dlsitesq",
+                    params
                 ).then(function(res){
                     console.log(res);
                     //TODO: 戻り値のチェック
@@ -153,6 +178,6 @@ export default {
                 });
             }
         })
-
     }
+
 }

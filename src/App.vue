@@ -87,7 +87,6 @@
   import * as firebaseui from 'firebaseui'
   import 'firebaseui/dist/firebaseui.css'
 
-
   export default {
     props: {
       source: String,
@@ -116,6 +115,7 @@
     mounted(){
       firebaseApp.auth().onAuthStateChanged((user)=>{
         if (user) {
+          Mob.setUserInfo()
           this.isSignIn = true
           console.log(user)      
         } else {
