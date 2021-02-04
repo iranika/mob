@@ -5,14 +5,51 @@
       clipped-right
       color="blue"
       dark
-      absolute
+      fade-img-on-scroll
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer">        
-      </v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>MoB verβ.012</v-toolbar-title>
       <v-spacer></v-spacer>
-      <div id="firebase-auth-ui" v-if="isSignIn == false"></div>
-      <v-avatar color="light-blue" v-else ><img :src="firebaseApp.auth().currentUser.photoURL" /> </v-avatar>
+      <div id="firebase-auth-ui" style="height='100%'" v-if="isSignIn == false"></div>
+      <div v-else>
+        <v-menu
+          bottom
+          offset-y
+          rounded
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              v-on="on"
+            >
+              <v-avatar color="light-blue" ><img :src="firebaseApp.auth().currentUser.photoURL" /> </v-avatar>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-list-item>
+              <v-list-item-content class="justify-center">
+                <div class="mx-auto text-center">
+                  <p>{{ firebaseApp.auth().currentUser.displayName }}</p>
+                  <v-divider class="my-4"></v-divider>
+                  <v-btn
+                    text
+                    v-on:click="signOut()"
+                  >
+                    ログアウト
+                  </v-btn>
+                </div>
+              </v-list-item-content>
+            </v-list-item>
+          </v-card>
+        </v-menu>
+      </div>
+      <template v-slot:extension>
+        <v-tabs align-with-title>
+          <v-tab to="/">Home</v-tab>
+          <v-tab to="/create-deck">Create</v-tab>
+          <v-tab>MyPage</v-tab>
+        </v-tabs>
+      </template>
     </v-app-bar>
     <v-navigation-drawer
       v-model="drawer"
@@ -20,7 +57,7 @@
       temporary
     >
       <v-list dense>
-        <v-list-item @click.stop="left = !left">
+        <v-list-item @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-exit-to-app</v-icon>
           </v-list-item-action>
@@ -110,21 +147,33 @@
       },
       setSignIn(bool){
         this.isSignIn = bool;
+      },
+      signOut(){
+        firebaseApp.auth().signOut().then(()=>{
+          console.log("ログアウトしました")
+          this.isSignIn = false
+          location.reload() //Note: 汚いけどリロードすればステータスを初期化できるので暫定策
+        }).catch((error)=>{
+          console.log("ログアウトエラー", error)
+        })
       }
     },
     mounted(){
       firebaseApp.auth().onAuthStateChanged((user)=>{
+        var ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebaseApp.auth());
         if (user) {
           Mob.setUserInfo()
           this.isSignIn = true
-          console.log(user)      
+          console.log(user) 
         } else {
           this.isSignIn = false
-          var ui = new firebaseui.auth.AuthUI(firebaseApp.auth());
           ui.start("#firebase-auth-ui", {
             //signInSuccessUrl: '#/',
             signInOptions: [
-              firebaseApp.auth.TwitterAuthProvider.PROVIDER_ID
+              {
+                provider: firebaseApp.auth.TwitterAuthProvider.PROVIDER_ID,
+                fullLabel: "Signin"
+              }
             ],
             tosUrl: 'http://iranika.info/kiyaku',
             //privacyPolicyUrl: 'http://iranika.info/kiyaku'
