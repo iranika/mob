@@ -8,7 +8,7 @@ let productsRef = firestore.collection('products');
 let productsPatchRef = firestore.collection('products_patch');
 let usersRef = firestore.collection('users')
 var decksPtr = [];
-
+var usersPtr = [];
 /*
 function hasCheckProduct(productCodeArray) {
     //TODO: 編集が必要なフィールドがある場合にhasCheckのオブジェクト配列をreturnする
@@ -39,26 +39,41 @@ function hasCheckProduct(productCodeArray) {
     return result;
 }
 */
+usersRef.get().then(function(snapshot){
+    snapshot.forEach(function(doc) {
+        usersPtr.push(doc.data())
+    })
+})
+
+console.log(usersPtr)
 
 export default {
-
+    users: usersPtr,
     decks: decksPtr,
     getDecks: function () {
         let result = [];
+        let self = this
         docksRef.get().then(
             function(querySnapshot){
                 querySnapshot.forEach(function(doc){
-                    let d = doc.data();
+                    var d = doc.data();
                     d.deckid = doc.id
+                    console.log(self.users)
+                    d.autherName = self.users.filter(u => u.uid == d.auther)[0].name
+                    console.log(d.autherName)
                     result.push(d);
                 })
             }
         )
-        //console.log(result)
         return result;
     },
     getProductCode: function(urlStr=""){
         return urlStr.replace(/.*\//, "").replace(/\.html.*$/, "")
+    },
+    getUserName: function(){
+        console.log(JSON.stringify(this.users))
+        //return this.users.then().filter(u => u.uid == uid).name
+
     },
     getBattleResult: async function(answerData, productCodes) {
         var result = {
@@ -128,7 +143,7 @@ export default {
                 name: firebase.auth().currentUser.displayName,
                 photo: firebase.auth().currentUser.photoURL
             }).then(function(docRef){
-                console.log("Document was created.", docRef)
+                console.log("Document was recorded", docRef)
             }).catch(function (error) {
                 console.error("Document was not created", error)               
             })

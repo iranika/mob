@@ -4,7 +4,7 @@
       {{ deck.title }}
     </v-card-title>
     <v-card-subtitle style="text-align: left;">
-      <a href style="color:gray;text-decoration: none !important;">{{ deck.auther }}</a>
+      <a href style="color:gray;text-decoration: none !important;">{{ deck.autherName }}</a>
     </v-card-subtitle>
 
     <v-card-text>
@@ -38,6 +38,8 @@
 <script>
 import HintsList from "./HintsList.vue";
 import BattleForm from "./BattleForm.vue";
+//import Mob from "../Mob";
+
 export default {
   props: {
     deck: {},
@@ -47,6 +49,15 @@ export default {
     disabled: false,
     readonly: false
   }),
+  methods:{
+    /*
+    getUserName: async function(uid){
+      const name = await Mob.getUserName(uid)
+      console.log(JSON.stringify(name))
+      return JSON.stringify(name)
+    }
+    */
+  },
   components: {
     HintsList,
     BattleForm,
