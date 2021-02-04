@@ -167,11 +167,11 @@ export default {
                 let params = new URLSearchParams()
                 params.append("urls", productUrl)
                 axios.post(
-                    "http://yurika.iranika.info:1323/dlsitesq",
+                    "https://gomob.iranika.info/dlsitesq",
                     params
                 ).then(function(res){
                     console.log(res);
-                    //TODO: 戻り値のチェック
+                    //TODO: 戻り値をチェックしてNullがあればpatch登録をさせる
                     console.log("Add Product Success: ", productUrl);
                 }).catch(function (err){
                     console.error(err);
