@@ -4,7 +4,11 @@
     :active.sync="isLoading"
     :can-cancel="false"
     :is-full-page="fullPage"></loading>
-    <v-content width="100%" v-if="isSignIn == true">
+    <v-content
+      width="100%"
+      class="pa-0"
+      v-if="isSignIn == true"
+    >
       <v-container class="fill-height" fluid>
         <v-row justify="center" align="center">
           <v-card class="d-flex flex-column" max-width="600">
@@ -92,7 +96,7 @@ export default {
       let answers = self.answers.map(function(answer){
           return Mob.getProductCode(answer)
       })
-      Mob.setDeck(self.title, self.auther, answers, self.answerType, self.hints)
+      Mob.setDeck(self.title, firebaseApp.auth().currentUser.uid , answers, self.answerType, self.hints)
       console.log(this.url);
       alert("送信しました");
       self.isLoading = false;

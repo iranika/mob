@@ -2,6 +2,7 @@
 <div>
   <v-content
     width="100%"
+    class="pa-0"
   >
     <v-container
       class="fill-height"
